@@ -1,25 +1,2094 @@
  <!DOCTYPE html>
-<html>
-<head<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">>
-    <title>Result</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agri Nexa | Prediction Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Your CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            font-family: "Inter", sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 5% 10%,
+                    rgba(34, 197, 94, 0.12),
+                    transparent 25%
+                ),
+
+                radial-gradient(
+                    circle at 95% 20%,
+                    rgba(16, 185, 129, 0.10),
+                    transparent 25%
+                ),
+
+                linear-gradient(
+                    135deg,
+                    #f4fff7,
+                    #edf9f1,
+                    #f8fffa
+                );
+
+            overflow-x: hidden;
+        }
+
+
+        /* =====================================================
+           BACKGROUND
+        ===================================================== */
+
+        .background {
+
+            position: fixed;
+
+            inset: 0;
+
+            overflow: hidden;
+
+            pointer-events: none;
+
+            z-index: 0;
+        }
+
+
+        .bubble {
+
+            position: absolute;
+
+            border-radius: 50%;
+
+            background: rgba(34, 197, 94, 0.07);
+
+            animation: floatBubble 12s ease-in-out infinite;
+        }
+
+
+        .bubble-1 {
+
+            width: 260px;
+            height: 260px;
+
+            left: -100px;
+            top: 10%;
+        }
+
+
+        .bubble-2 {
+
+            width: 180px;
+            height: 180px;
+
+            right: -60px;
+            top: 25%;
+
+            animation-delay: 2s;
+        }
+
+
+        .bubble-3 {
+
+            width: 220px;
+            height: 220px;
+
+            left: 20%;
+            bottom: -100px;
+
+            animation-delay: 4s;
+        }
+
+
+        .bubble-4 {
+
+            width: 120px;
+            height: 120px;
+
+            right: 25%;
+            bottom: 15%;
+
+            animation-delay: 6s;
+        }
+
+
+        @keyframes floatBubble {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(25px, -35px);
+            }
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .dashboard-wrapper {
+
+            position: relative;
+
+            z-index: 5;
+
+            max-width: 1250px;
+
+            margin: auto;
+
+            padding: 35px 20px 50px;
+        }
+
+
+        /* =====================================================
+           TOP HEADER
+        ===================================================== */
+
+        .dashboard-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 25px;
+
+            animation: fadeDown 0.8s ease;
+        }
+
+
+        .brand-area {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+        }
+
+
+        .brand-logo {
+
+            width: 58px;
+
+            height: 58px;
+
+            border-radius: 17px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #dcfce7,
+                    #bbf7d0
+                );
+
+            font-size: 30px;
+
+            box-shadow:
+                0 10px 30px rgba(22, 163, 74, 0.13);
+
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+
+        .brand-name {
+
+            font-size: 25px;
+
+            font-weight: 800;
+
+            color: #047857;
+
+            margin: 0;
+        }
+
+
+        .brand-caption {
+
+            font-size: 11px;
+
+            color: #94a3b8;
+
+            margin-top: 3px;
+        }
+
+
+        .live-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 9px 14px;
+
+            border-radius: 50px;
+
+            background: rgba(255,255,255,0.8);
+
+            border: 1px solid #dcfce7;
+
+            color: #166534;
+
+            font-size: 11px;
+
+            font-weight: 600;
+        }
+
+
+        .status-dot {
+
+            width: 8px;
+
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            box-shadow:
+                0 0 0 5px rgba(34,197,94,0.12);
+
+            animation: pulse 1.8s infinite;
+        }
+
+
+        @keyframes pulse {
+
+            0% {
+                box-shadow: 0 0 0 0 rgba(34,197,94,0.35);
+            }
+
+            70% {
+                box-shadow: 0 0 0 7px rgba(34,197,94,0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(34,197,94,0);
+            }
+        }
+
+
+        @keyframes logoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+
+        @keyframes fadeDown {
+
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           HERO RESULT
+        ===================================================== */
+
+        .result-hero {
+
+            position: relative;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.94),
+                    rgba(240,253,244,0.92)
+                );
+
+            border: 1px solid rgba(255,255,255,0.9);
+
+            border-radius: 28px;
+
+            padding: 35px;
+
+            box-shadow:
+                0 25px 65px rgba(15,23,42,0.07);
+
+            text-align: center;
+
+            animation: heroAppear 0.9s ease;
+        }
+
+
+        .result-hero::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 300px;
+
+            height: 300px;
+
+            border-radius: 50%;
+
+            background: rgba(34,197,94,0.07);
+
+            left: -120px;
+
+            top: -150px;
+        }
+
+
+        .result-hero::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 220px;
+
+            height: 220px;
+
+            border-radius: 50%;
+
+            background: rgba(16,185,129,0.06);
+
+            right: -90px;
+
+            bottom: -120px;
+        }
+
+
+        .result-icon {
+
+            position: relative;
+
+            z-index: 2;
+
+            width: 82px;
+
+            height: 82px;
+
+            margin: auto;
+
+            border-radius: 25px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #dcfce7,
+                    #bbf7d0
+                );
+
+            font-size: 45px;
+
+            box-shadow:
+                0 15px 35px rgba(22,163,74,0.16);
+
+            animation:
+                resultIcon 1.5s ease,
+                resultFloat 3s ease-in-out infinite;
+        }
+
+
+        .recommendation-label {
+
+            position: relative;
+
+            z-index: 2;
+
+            margin-top: 18px;
+
+            color: #64748b;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 2px;
+        }
+
+
+        .crop-name {
+
+            position: relative;
+
+            z-index: 2;
+
+            margin: 7px 0;
+
+            font-size: 56px;
+
+            font-weight: 800;
+
+            text-transform: capitalize;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #047857,
+                    #16a34a,
+                    #059669
+                );
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+            animation: cropReveal 1s ease;
+        }
+
+
+        .result-description {
+
+            position: relative;
+
+            z-index: 2;
+
+            color: #64748b;
+
+            font-size: 13px;
+
+            margin: 0;
+        }
+
+
+        @keyframes heroAppear {
+
+            from {
+                opacity: 0;
+                transform: translateY(25px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+
+        @keyframes resultIcon {
+
+            from {
+                opacity: 0;
+                transform: scale(0.4);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+
+        @keyframes resultFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-7px);
+            }
+        }
+
+
+        @keyframes cropReveal {
+
+            from {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+
+        /* =====================================================
+           SECTION TITLE
+        ===================================================== */
+
+        .section-title {
+
+            margin-top: 30px;
+
+            margin-bottom: 16px;
+
+            color: #064e3b;
+
+            font-size: 18px;
+
+            font-weight: 800;
+        }
+
+
+        .section-subtitle {
+
+            color: #94a3b8;
+
+            font-size: 11px;
+
+            margin-top: -10px;
+
+            margin-bottom: 18px;
+        }
+
+
+        /* =====================================================
+           METRIC CARDS
+        ===================================================== */
+
+        .metric-card {
+
+            height: 100%;
+
+            padding: 20px;
+
+            background:
+                rgba(255,255,255,0.87);
+
+            backdrop-filter: blur(15px);
+
+            border: 1px solid #e2eee6;
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 10px 30px rgba(15,23,42,0.045);
+
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease,
+                border-color 0.3s ease;
+
+            animation: metricAppear 0.7s ease both;
+        }
+
+
+        .metric-card:hover {
+
+            transform: translateY(-6px);
+
+            border-color: #bbf7d0;
+
+            box-shadow:
+                0 18px 35px rgba(22,163,74,0.10);
+        }
+
+
+        .metric-top {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+
+        .metric-icon {
+
+            width: 43px;
+
+            height: 43px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background: #f0fdf4;
+
+            border-radius: 13px;
+
+            font-size: 21px;
+        }
+
+
+        .metric-arrow {
+
+            color: #22c55e;
+
+            font-size: 13px;
+        }
+
+
+        .metric-label {
+
+            margin-top: 15px;
+
+            color: #94a3b8;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.8px;
+        }
+
+
+        .metric-value {
+
+            margin-top: 3px;
+
+            color: #0f172a;
+
+            font-size: 23px;
+
+            font-weight: 800;
+        }
+
+
+        .metric-description {
+
+            color: #94a3b8;
+
+            font-size: 9px;
+
+            margin-top: 4px;
+        }
+
+
+        @keyframes metricAppear {
+
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           DASHBOARD PANELS
+        ===================================================== */
+
+        .dashboard-panel {
+
+            height: 100%;
+
+            background:
+                rgba(255,255,255,0.87);
+
+            backdrop-filter: blur(15px);
+
+            border: 1px solid #e2eee6;
+
+            border-radius: 22px;
+
+            padding: 24px;
+
+            box-shadow:
+                0 10px 35px rgba(15,23,42,0.05);
+
+            animation: panelAppear 0.8s ease;
+        }
+
+
+        .panel-title {
+
+            color: #064e3b;
+
+            font-size: 15px;
+
+            font-weight: 800;
+
+            margin-bottom: 4px;
+        }
+
+
+        .panel-description {
+
+            color: #94a3b8;
+
+            font-size: 10px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .chart-container {
+
+            height: 280px;
+
+            position: relative;
+        }
+
+
+        @keyframes panelAppear {
+
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           PARAMETER PROFILE
+        ===================================================== */
+
+        .profile-panel {
+
+            background:
+                rgba(255,255,255,0.87);
+
+            border: 1px solid #e2eee6;
+
+            border-radius: 22px;
+
+            padding: 25px;
+
+            margin-top: 20px;
+        }
+
+
+        .progress-item {
+
+            margin-bottom: 18px;
+        }
+
+
+        .progress-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            color: #475569;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            margin-bottom: 7px;
+        }
+
+
+        .progress-track {
+
+            width: 100%;
+
+            height: 9px;
+
+            background: #e2e8f0;
+
+            border-radius: 50px;
+
+            overflow: hidden;
+        }
+
+
+        .progress-fill {
+
+            height: 100%;
+
+            border-radius: 50px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #15803d,
+                    #22c55e,
+                    #10b981
+                );
+
+            animation: progressGrow 1.4s ease;
+        }
+
+
+        @keyframes progressGrow {
+
+            from {
+                width: 0 !important;
+            }
+        }
+
+
+        /* =====================================================
+           AI MODEL CARD
+        ===================================================== */
+
+        .ai-card {
+
+            margin-top: 20px;
+
+            padding: 22px;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ecfdf5,
+                    #f0fdf4
+                );
+
+            border: 1px solid #bbf7d0;
+        }
+
+
+        .ai-title {
+
+            color: #065f46;
+
+            font-size: 14px;
+
+            font-weight: 800;
+        }
+
+
+        .ai-description {
+
+            color: #64748b;
+
+            font-size: 11px;
+
+            line-height: 1.7;
+
+            margin-top: 7px;
+        }
+
+
+        .ai-tags {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 7px;
+
+            margin-top: 13px;
+        }
+
+
+        .ai-tag {
+
+            padding: 6px 10px;
+
+            border-radius: 50px;
+
+            background: white;
+
+            border: 1px solid #dcfce7;
+
+            color: #166534;
+
+            font-size: 10px;
+
+            font-weight: 600;
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .action-area {
+
+            margin-top: 25px;
+
+            display: flex;
+
+            gap: 12px;
+        }
+
+
+        .action-button {
+
+            flex: 1;
+
+            height: 50px;
+
+            border-radius: 13px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            transition: all 0.25s ease;
+        }
+
+
+        .primary-action {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #15803d,
+                    #16a34a,
+                    #059669
+                );
+
+            color: white;
+
+            box-shadow:
+                0 9px 22px rgba(22,163,74,0.18);
+        }
+
+
+        .secondary-action {
+
+            background: white;
+
+            color: #166534;
+
+            border: 1px solid #dce9e0;
+        }
+
+
+        .action-button:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 14px 28px rgba(15,23,42,0.10);
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #94a3b8;
+
+            font-size: 10px;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 768px) {
+
+            .dashboard-wrapper {
+
+                padding: 25px 14px;
+            }
+
+            .dashboard-header {
+
+                align-items: flex-start;
+            }
+
+            .brand-name {
+
+                font-size: 21px;
+            }
+
+            .live-status {
+
+                display: none;
+            }
+
+            .result-hero {
+
+                padding: 28px 15px;
+            }
+
+            .crop-name {
+
+                font-size: 42px;
+            }
+
+            .action-area {
+
+                flex-direction: column;
+            }
+        }
+
+    </style>
+
 </head>
 
-<body class="bg-light">
 
-<div class="container mt-5">
+<body>
 
-    <div class="card shadow p-5 text-center">
 
-        <h2 class="text-success">🌱 Recommended Crop</h2>
+    <!-- =====================================================
+         ANIMATED BACKGROUND
+    ====================================================== -->
 
-        <h1 class="display-4 mt-3 text-primary">{{ prediction }}</h1>
+    <div class="background">
 
-        <a href="/" class="btn btn-secondary mt-4">Try Again</a>
+        <div class="bubble bubble-1"></div>
+
+        <div class="bubble bubble-2"></div>
+
+        <div class="bubble bubble-3"></div>
+
+        <div class="bubble bubble-4"></div>
 
     </div>
 
-</div>
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <!-- =====================================================
+         MAIN DASHBOARD
+    ====================================================== -->
+
+    <main class="dashboard-wrapper">
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <div class="dashboard-header">
+
+            <div class="brand-area">
+
+                <div class="brand-logo">
+                    🌱
+                </div>
+
+                <div>
+
+                    <h1 class="brand-name">
+                        Agri Nexa
+                    </h1>
+
+                    <div class="brand-caption">
+                        Smart Agricultural Intelligence Dashboard
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="live-status">
+
+                <span class="status-dot"></span>
+
+                AI Prediction Complete
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RESULT HERO
+        ================================================== -->
+
+        <section class="result-hero">
+
+            <div class="result-icon">
+                🌱
+            </div>
+
+            <div class="recommendation-label">
+                AI Recommended Crop
+            </div>
+
+            <div class="crop-name">
+                {{ prediction }}
+            </div>
+
+            <p class="result-description">
+                Your soil and environmental conditions have been
+                analyzed by the OptiCrop prediction engine.
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             ENVIRONMENTAL METRICS
+        ================================================== -->
+
+        <div class="section-title">
+            📊 Environmental Overview
+        </div>
+
+        <div class="section-subtitle">
+            Parameters supplied to the machine-learning model
+        </div>
+
+
+        <div class="row g-3">
+
+
+            <!-- N -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            🌿
+                        </div>
+
+                        <div class="metric-arrow">
+                            N
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Nitrogen
+                    </div>
+
+                    <div class="metric-value">
+                        {{ n }}
+                    </div>
+
+                    <div class="metric-description">
+                        Soil nutrient
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- P -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            🧪
+                        </div>
+
+                        <div class="metric-arrow">
+                            P
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Phosphorus
+                    </div>
+
+                    <div class="metric-value">
+                        {{ p }}
+                    </div>
+
+                    <div class="metric-description">
+                        Soil nutrient
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- K -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            🌱
+                        </div>
+
+                        <div class="metric-arrow">
+                            K
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Potassium
+                    </div>
+
+                    <div class="metric-value">
+                        {{ k }}
+                    </div>
+
+                    <div class="metric-description">
+                        Soil nutrient
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Temperature -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            🌡️
+                        </div>
+
+                        <div class="metric-arrow">
+                            °C
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Temperature
+                    </div>
+
+                    <div class="metric-value">
+                        {{ temp }}°
+                    </div>
+
+                    <div class="metric-description">
+                        Environmental
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Humidity -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            💧
+                        </div>
+
+                        <div class="metric-arrow">
+                            %
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Humidity
+                    </div>
+
+                    <div class="metric-value">
+                        {{ humidity }}%
+                    </div>
+
+                    <div class="metric-description">
+                        Atmospheric
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- pH -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            ⚗️
+                        </div>
+
+                        <div class="metric-arrow">
+                            pH
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Soil pH
+                    </div>
+
+                    <div class="metric-value">
+                        {{ ph }}
+                    </div>
+
+                    <div class="metric-description">
+                        Soil condition
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Rainfall -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            🌧️
+                        </div>
+
+                        <div class="metric-arrow">
+                            mm
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Rainfall
+                    </div>
+
+                    <div class="metric-value">
+                        {{ rainfall }}
+                    </div>
+
+                    <div class="metric-description">
+                        Water availability
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Prediction -->
+
+            <div class="col-6 col-md-4 col-lg-3">
+
+                <div class="metric-card">
+
+                    <div class="metric-top">
+
+                        <div class="metric-icon">
+                            🤖
+                        </div>
+
+                        <div class="metric-arrow">
+                            AI
+                        </div>
+
+                    </div>
+
+                    <div class="metric-label">
+                        Prediction
+                    </div>
+
+                    <div class="metric-value"
+                         style="font-size:18px;">
+                        {{ prediction }}
+                    </div>
+
+                    <div class="metric-description">
+                        Recommended crop
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             CHARTS
+        ================================================== -->
+
+        <div class="row g-4 mt-1">
+
+
+            <!-- Nutrient Chart -->
+
+            <div class="col-lg-6">
+
+                <div class="dashboard-panel">
+
+                    <div class="panel-title">
+                        🌿 Soil Nutrient Profile
+                    </div>
+
+                    <div class="panel-description">
+                        Comparison of N, P and K values
+                    </div>
+
+                    <div class="chart-container">
+
+                        <canvas id="nutrientChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Environment Chart -->
+
+            <div class="col-lg-6">
+
+                <div class="dashboard-panel">
+
+                    <div class="panel-title">
+                        🌦️ Environmental Conditions
+                    </div>
+
+                    <div class="panel-description">
+                        Temperature, humidity, pH and rainfall
+                    </div>
+
+                    <div class="chart-container">
+
+                        <canvas id="environmentChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             PARAMETER PROFILE
+        ================================================== -->
+
+        <div class="profile-panel">
+
+            <div class="panel-title">
+                📈 Parameter Intensity
+            </div>
+
+            <div class="panel-description">
+                Visual representation of the supplied input values.
+                These bars are visualization scales and are not
+                prediction confidence percentages.
+            </div>
+
+
+            <!-- Nitrogen -->
+
+            <div class="progress-item">
+
+                <div class="progress-header">
+
+                    <span>Nitrogen</span>
+
+                    <span>{{ n }}</span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ ((n|float / 150) * 100)|round|int }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Phosphorus -->
+
+            <div class="progress-item">
+
+                <div class="progress-header">
+
+                    <span>Phosphorus</span>
+
+                    <span>{{ p }}</span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ ((p|float / 150) * 100)|round|int }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Potassium -->
+
+            <div class="progress-item">
+
+                <div class="progress-header">
+
+                    <span>Potassium</span>
+
+                    <span>{{ k }}</span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ ((k|float / 200) * 100)|round|int }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Humidity -->
+
+            <div class="progress-item">
+
+                <div class="progress-header">
+
+                    <span>Humidity</span>
+
+                    <span>{{ humidity }}%</span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ humidity }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- pH -->
+
+            <div class="progress-item">
+
+                <div class="progress-header">
+
+                    <span>Soil pH</span>
+
+                    <span>{{ ph }}</span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ ((ph|float / 14) * 100)|round|int }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Rainfall -->
+
+            <div class="progress-item">
+
+                <div class="progress-header">
+
+                    <span>Rainfall</span>
+
+                    <span>{{ rainfall }} mm</span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ ((rainfall|float / 300) * 100)|round|int }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             AI MODEL
+        ================================================== -->
+
+        <div class="ai-card">
+
+            <div class="ai-title">
+                🤖 Agri Nexa AI Prediction Engine
+            </div>
+
+            <div class="ai-description">
+
+                The system analyzes the provided soil and environmental
+                parameters and uses the trained machine-learning model
+                to generate the recommended crop.
+
+            </div>
+
+            <div class="ai-tags">
+
+                <div class="ai-tag">
+                    🌱 Soil Analysis
+                </div>
+
+                <div class="ai-tag">
+                    🌦️ Climate Analysis
+                </div>
+
+                <div class="ai-tag">
+                    🧠 Machine Learning
+                </div>
+
+                <div class="ai-tag">
+                    📊 Data Driven
+                </div>
+
+                <div class="ai-tag">
+                    🚜 Smart Agriculture
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTION BUTTONS
+        ================================================== -->
+
+        <div class="action-area">
+
+            <a
+                href="/"
+                class="action-button secondary-action"
+            >
+                ← Modify Inputs
+            </a>
+
+
+            <a
+                href="/"
+                class="action-button primary-action"
+            >
+                🌱 New Prediction
+            </a>
+
+        </div>
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
+
+        <div class="footer">
+
+            🌱 Agri Neax
+            &nbsp;•&nbsp;
+            Smart Agricultural Production Optimization Engine
+            &nbsp;•&nbsp;
+            AI Powered Agriculture
+
+        </div>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         CHARTS
+    ====================================================== -->
+
+    <script>
+
+        /*
+        -------------------------------------------------------
+        GET VALUES FROM FLASK
+        -------------------------------------------------------
+        */
+
+        const nitrogen =
+            Number("{{ n|default(0) }}");
+
+        const phosphorus =
+            Number("{{ p|default(0) }}");
+
+        const potassium =
+            Number("{{ k|default(0) }}");
+
+        const temperature =
+            Number("{{ temp|default(0) }}");
+
+        const humidity =
+            Number("{{ humidity|default(0) }}");
+
+        const ph =
+            Number("{{ ph|default(0) }}");
+
+        const rainfall =
+            Number("{{ rainfall|default(0) }}");
+
+
+        /*
+        -------------------------------------------------------
+        GLOBAL CHART SETTINGS
+        -------------------------------------------------------
+        */
+
+        Chart.defaults.font.family = "Inter";
+
+        Chart.defaults.font.size = 11;
+
+        Chart.defaults.color = "#64748b";
+
+
+        /*
+        =======================================================
+        NUTRIENT CHART
+        =======================================================
+        */
+
+        const nutrientCanvas =
+            document.getElementById("nutrientChart");
+
+
+        new Chart(
+            nutrientCanvas,
+            {
+
+                type: "doughnut",
+
+                data: {
+
+                    labels: [
+                        "Nitrogen",
+                        "Phosphorus",
+                        "Potassium"
+                    ],
+
+                    datasets: [
+
+                        {
+
+                            data: [
+                                nitrogen,
+                                phosphorus,
+                                potassium
+                            ],
+
+                            backgroundColor: [
+                                "#16a34a",
+                                "#22c55e",
+                                "#86efac"
+                            ],
+
+                            borderColor: "#ffffff",
+
+                            borderWidth: 4,
+
+                            hoverOffset: 10
+
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    cutout: "65%",
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom",
+
+                            labels: {
+
+                                usePointStyle: true,
+
+                                padding: 18
+
+                            }
+
+                        },
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                label: function(context) {
+
+                                    return (
+                                        " " +
+                                        context.label +
+                                        ": " +
+                                        context.raw
+                                    );
+
+                                }
+
+                            }
+
+                        }
+
+                    },
+
+                    animation: {
+
+                        animateRotate: true,
+
+                        animateScale: true,
+
+                        duration: 1400
+
+                    }
+
+                }
+
+            }
+        );
+
+
+        /*
+        =======================================================
+        ENVIRONMENT CHART
+        =======================================================
+        */
+
+        const environmentCanvas =
+            document.getElementById("environmentChart");
+
+
+        new Chart(
+            environmentCanvas,
+            {
+
+                type: "bar",
+
+                data: {
+
+                    labels: [
+                        "Temperature",
+                        "Humidity",
+                        "pH",
+                        "Rainfall"
+                    ],
+
+                    datasets: [
+
+                        {
+
+                            label: "Input Value",
+
+                            data: [
+                                temperature,
+                                humidity,
+                                ph,
+                                rainfall
+                            ],
+
+                            backgroundColor: [
+                                "#16a34a",
+                                "#22c55e",
+                                "#10b981",
+                                "#059669"
+                            ],
+
+                            borderRadius: 8,
+
+                            borderSkipped: false
+
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+
+                            display: false
+
+                        }
+
+                    },
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            grid: {
+
+                                color:
+                                    "rgba(148,163,184,0.12)"
+
+                            }
+
+                        },
+
+                        x: {
+
+                            grid: {
+
+                                display: false
+
+                            }
+
+                        }
+
+                    },
+
+                    animation: {
+
+                        duration: 1200,
+
+                        easing: "easeOutQuart"
+
+                    }
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+    <!-- Bootstrap -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+    <!-- Your JS -->
+
+    <script
+        src="{{ url_for('static', filename='js/script.js') }}">
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>s
 </body>
+
 </html>

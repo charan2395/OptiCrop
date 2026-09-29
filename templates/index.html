@@ -1,55 +1,1293 @@
  <!DOCTYPE html>
-<html>
-<head<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">>
-    <title>OptiCrop</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agri Nexa| Smart Crop Predictor</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Your CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            background:
+                radial-gradient(
+                    circle at 10% 20%,
+                    rgba(34, 197, 94, 0.13),
+                    transparent 25%
+                ),
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(16, 185, 129, 0.12),
+                    transparent 25%
+                ),
+                linear-gradient(
+                    135deg,
+                    #f5fff8,
+                    #edf9f1,
+                    #f8fffa
+                );
+            overflow-x: hidden;
+        }
+
+
+        /* =====================================================
+           ANIMATED BACKGROUND
+        ===================================================== */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.08);
+            animation: floating 12s ease-in-out infinite;
+        }
+
+        .circle-1 {
+            width: 250px;
+            height: 250px;
+            top: 5%;
+            left: -80px;
+        }
+
+        .circle-2 {
+            width: 180px;
+            height: 180px;
+            top: 35%;
+            right: -50px;
+            animation-delay: 2s;
+        }
+
+        .circle-3 {
+            width: 130px;
+            height: 130px;
+            bottom: 10%;
+            left: 12%;
+            animation-delay: 4s;
+        }
+
+        .circle-4 {
+            width: 300px;
+            height: 300px;
+            bottom: -150px;
+            right: 15%;
+            animation-delay: 6s;
+        }
+
+        @keyframes floating {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(25px, -35px);
+            }
+        }
+
+
+        /* =====================================================
+           FLOATING LEAVES
+        ===================================================== */
+
+        .leaf {
+            position: fixed;
+            font-size: 28px;
+            opacity: 0.12;
+            pointer-events: none;
+            animation: leafFloat 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .leaf-1 {
+            left: 7%;
+            top: 25%;
+        }
+
+        .leaf-2 {
+            right: 10%;
+            top: 65%;
+            animation-delay: 2s;
+        }
+
+        .leaf-3 {
+            left: 80%;
+            top: 12%;
+            animation-delay: 4s;
+        }
+
+        .leaf-4 {
+            left: 25%;
+            bottom: 8%;
+            animation-delay: 1s;
+        }
+
+        @keyframes leafFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-25px) rotate(12deg);
+            }
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+        ===================================================== */
+
+        .main-wrapper {
+            position: relative;
+            z-index: 5;
+            max-width: 1150px;
+            margin: auto;
+            padding: 50px 20px;
+        }
+
+
+        /* =====================================================
+           BRAND HEADER
+        ===================================================== */
+
+        .brand-section {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeDown 0.8s ease;
+        }
+
+        .brand-icon {
+            width: 75px;
+            height: 75px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #dcfce7,
+                    #bbf7d0
+                );
+
+            font-size: 40px;
+
+            box-shadow:
+                0 15px 35px rgba(22, 163, 74, 0.15);
+
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        .brand-title {
+            margin-top: 18px;
+            margin-bottom: 5px;
+
+            font-size: 42px;
+            font-weight: 800;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #047857,
+                    #16a34a,
+                    #059669
+                );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-description {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        @keyframes iconFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-3deg);
+            }
+
+            50% {
+                transform: translateY(-8px) rotate(3deg);
+            }
+        }
+
+        @keyframes fadeDown {
+
+            from {
+                opacity: 0;
+                transform: translateY(-25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           MAIN CARD
+        ===================================================== */
+
+        .prediction-card {
+
+            background: rgba(255, 255, 255, 0.82);
+
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+
+            border: 1px solid rgba(255, 255, 255, 0.9);
+
+            border-radius: 28px;
+
+            padding: 35px;
+
+            box-shadow:
+                0 25px 70px rgba(15, 23, 42, 0.08),
+                0 5px 20px rgba(34, 197, 94, 0.06);
+
+            animation: cardAppear 0.8s ease;
+        }
+
+        @keyframes cardAppear {
+
+            from {
+                opacity: 0;
+                transform: translateY(35px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+
+        /* =====================================================
+           TOP INFORMATION
+        ===================================================== */
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            color: #064e3b;
+            font-size: 20px;
+            font-weight: 700;
+
+            margin-bottom: 6px;
+        }
+
+        .section-heading-icon {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #ecfdf5;
+
+            border-radius: 12px;
+
+            font-size: 21px;
+        }
+
+        .section-description {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+
+
+        /* =====================================================
+           INPUT CARDS
+        ===================================================== */
+
+        .input-card {
+
+            position: relative;
+
+            background: rgba(255, 255, 255, 0.9);
+
+            border: 1px solid #e2eee6;
+
+            border-radius: 17px;
+
+            padding: 17px;
+
+            margin-bottom: 18px;
+
+            transition:
+                transform 0.3s ease,
+                box-shadow 0.3s ease,
+                border-color 0.3s ease;
+
+            animation: inputAppear 0.7s ease both;
+        }
+
+        .input-card:hover {
+
+            transform: translateY(-5px);
+
+            border-color: #86efac;
+
+            box-shadow:
+                0 12px 30px rgba(22, 163, 74, 0.10);
+        }
+
+        .input-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .input-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .input-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .input-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .input-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .input-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .input-card:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
+        @keyframes inputAppear {
+
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           INPUT HEADER
+        ===================================================== */
+
+        .input-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 11px;
+        }
+
+        .input-icon {
+
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+
+            background: #f0fdf4;
+
+            font-size: 20px;
+        }
+
+        .input-label {
+
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .input-help {
+
+            font-size: 10px;
+            color: #94a3b8;
+
+            margin-top: 2px;
+        }
+
+
+        /* =====================================================
+           INPUT BOX
+        ===================================================== */
+
+        .custom-input {
+
+            width: 100%;
+
+            height: 47px;
+
+            border: 1px solid #dbe7df;
+
+            border-radius: 11px;
+
+            background: #ffffff;
+
+            padding: 0 14px;
+
+            font-family: inherit;
+
+            font-size: 14px;
+
+            color: #0f172a;
+
+            outline: none;
+
+            transition:
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .custom-input:hover {
+
+            border-color: #86efac;
+
+            transform: translateY(-1px);
+        }
+
+        .custom-input:focus {
+
+            border-color: #16a34a;
+
+            box-shadow:
+                0 0 0 4px rgba(34, 197, 94, 0.12);
+
+            transform: translateY(-1px);
+        }
+
+        .custom-input::placeholder {
+            color: #94a3b8;
+        }
+
+
+        /* =====================================================
+           UNIT
+        ===================================================== */
+
+        .input-with-unit {
+            position: relative;
+        }
+
+        .input-unit {
+
+            position: absolute;
+
+            right: 13px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            font-size: 11px;
+            font-weight: 600;
+
+            color: #94a3b8;
+
+            pointer-events: none;
+        }
+
+
+        /* =====================================================
+           INFO TAGS
+        ===================================================== */
+
+        .info-tags {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+
+            margin: 8px 0 25px;
+        }
+
+        .info-tag {
+
+            padding: 7px 12px;
+
+            background: #f0fdf4;
+
+            border: 1px solid #dcfce7;
+
+            color: #166534;
+
+            border-radius: 50px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+        }
+
+
+        /* =====================================================
+           PREDICT BUTTON
+        ===================================================== */
+
+        .predict-button {
+
+            width: 100%;
+
+            height: 56px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #15803d,
+                    #16a34a,
+                    #059669
+                );
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 10px 25px rgba(22, 163, 74, 0.20);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .predict-button:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 15px 35px rgba(22, 163, 74, 0.28);
+        }
+
+        .predict-button:active {
+
+            transform: translateY(0);
+        }
+
+
+        /* =====================================================
+           BOTTOM INFORMATION
+        ===================================================== */
+
+        .bottom-info {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 30px;
+
+            margin-top: 25px;
+
+            flex-wrap: wrap;
+        }
+
+        .bottom-item {
+
+            color: #64748b;
+
+            font-size: 11px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+        }
+
+        .bottom-item span {
+
+            width: 7px;
+            height: 7px;
+
+            background: #22c55e;
+
+            border-radius: 50%;
+
+            box-shadow:
+                0 0 8px rgba(34, 197, 94, 0.5);
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 768px) {
+
+            .main-wrapper {
+                padding: 30px 15px;
+            }
+
+            .prediction-card {
+                padding: 22px;
+                border-radius: 20px;
+            }
+
+            .brand-title {
+                font-size: 32px;
+            }
+
+            .brand-icon {
+                width: 65px;
+                height: 65px;
+                font-size: 34px;
+            }
+
+            .section-heading {
+                font-size: 18px;
+            }
+
+        }
+
+    </style>
+
 </head>
 
-<body class="bg-light">
 
-<div class="container mt-5">
+<body>
 
-    <div class="card shadow p-4">
-        <h2 class="text-center text-success">🌾 OptiCrop Smart Crop Predictor</h2>
 
-        <form action="/predict" method="POST" class="mt-4">
+    <!-- =====================================================
+         ANIMATED BACKGROUND
+    ====================================================== -->
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <input name="n" class="form-control" placeholder="Nitrogen (N)" required>
-                </div>
+    <div class="background">
 
-                <div class="col-md-6 mb-3">
-                    <input name="p" class="form-control" placeholder="Phosphorous (P)" required>
-                </div>
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+        <div class="circle circle-4"></div>
 
-                <div class="col-md-6 mb-3">
-                    <input name="k" class="form-control" placeholder="Potassium (K)" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <input name="temp" class="form-control" placeholder="Temperature" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <input name="humidity" class="form-control" placeholder="Humidity" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <input name="ph" class="form-control" placeholder="pH Value" required>
-                </div>
-
-                <div class="col-md-12 mb-3">
-                    <input name="rainfall" class="form-control" placeholder="Rainfall" required>
-                </div>
-            </div>
-
-            <button class="btn btn-success w-100">Predict Crop</button>
-
-        </form>
     </div>
 
-</div>
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <!-- FLOATING LEAVES -->
+
+    <div class="leaf leaf-1">🍃</div>
+    <div class="leaf leaf-2">🌿</div>
+    <div class="leaf leaf-3">🍃</div>
+    <div class="leaf leaf-4">🌱</div>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main-wrapper">
+
+
+        <!-- =================================================
+             BRAND
+        ================================================== -->
+
+        <section class="brand-section">
+
+            <div class="brand-icon">
+                🌱
+            </div>
+
+            <h1 class="brand-title">
+                Agri Nexa
+            </h1>
+
+            <p class="brand-description">
+                Smart Agricultural Production Optimization Engine
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             PREDICTION CARD
+        ================================================== -->
+
+        <section class="prediction-card">
+
+
+            <!-- SECTION TITLE -->
+
+            <div class="section-heading">
+
+                <div class="section-heading-icon">
+                    🌾
+                </div>
+
+                <div>
+                    Crop Environment
+                </div>
+
+            </div>
+
+            <p class="section-description">
+                Enter your soil and environmental conditions.
+                OptiCrop will analyze them and recommend a suitable crop.
+            </p>
+
+
+            <!-- =================================================
+                 FORM
+            ================================================== -->
+
+            <form action="/predict" method="POST">
+
+
+                <div class="row">
+
+
+                    <!-- =================================================
+                         NITROGEN
+                    ================================================== -->
+
+                    <div class="col-lg-6">
+
+                        <div class="input-card">
+
+                            <div class="input-header">
+
+                                <div class="input-icon">
+                                    🌿
+                                </div>
+
+                                <div>
+
+                                    <div class="input-label">
+                                        Nitrogen (N)
+                                    </div>
+
+                                    <div class="input-help">
+                                        Soil nitrogen level
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="input-with-unit">
+
+                                <input
+                                    type="number"
+                                    name="n"
+                                    class="custom-input"
+                                    placeholder="Enter nitrogen value"
+                                    min="0"
+                                    step="any"
+                                    required
+                                >
+
+                                <span class="input-unit">
+                                    N
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PHOSPHORUS
+                    ================================================== -->
+
+                    <div class="col-lg-6">
+
+                        <div class="input-card">
+
+                            <div class="input-header">
+
+                                <div class="input-icon">
+                                    🧪
+                                </div>
+
+                                <div>
+
+                                    <div class="input-label">
+                                        Phosphorus (P)
+                                    </div>
+
+                                    <div class="input-help">
+                                        Soil phosphorus level
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="input-with-unit">
+
+                                <input
+                                    type="number"
+                                    name="p"
+                                    class="custom-input"
+                                    placeholder="Enter phosphorus value"
+                                    min="0"
+                                    step="any"
+                                    required
+                                >
+
+                                <span class="input-unit">
+                                    P
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         POTASSIUM
+                    ================================================== -->
+
+                    <div class="col-lg-6">
+
+                        <div class="input-card">
+
+                            <div class="input-header">
+
+                                <div class="input-icon">
+                                    🌱
+                                </div>
+
+                                <div>
+
+                                    <div class="input-label">
+                                        Potassium (K)
+                                    </div>
+
+                                    <div class="input-help">
+                                        Soil potassium level
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="input-with-unit">
+
+                                <input
+                                    type="number"
+                                    name="k"
+                                    class="custom-input"
+                                    placeholder="Enter potassium value"
+                                    min="0"
+                                    step="any"
+                                    required
+                                >
+
+                                <span class="input-unit">
+                                    K
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         TEMPERATURE
+                    ================================================== -->
+
+                    <div class="col-lg-6">
+
+                        <div class="input-card">
+
+                            <div class="input-header">
+
+                                <div class="input-icon">
+                                    🌡️
+                                </div>
+
+                                <div>
+
+                                    <div class="input-label">
+                                        Temperature
+                                    </div>
+
+                                    <div class="input-help">
+                                        Current temperature
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="input-with-unit">
+
+                                <input
+                                    type="number"
+                                    name="temp"
+                                    class="custom-input"
+                                    placeholder="Enter temperature"
+                                    step="any"
+                                    required
+                                >
+
+                                <span class="input-unit">
+                                    °C
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         HUMIDITY
+                    ================================================== -->
+
+                    <div class="col-lg-6">
+
+                        <div class="input-card">
+
+                            <div class="input-header">
+
+                                <div class="input-icon">
+                                    💧
+                                </div>
+
+                                <div>
+
+                                    <div class="input-label">
+                                        Humidity
+                                    </div>
+
+                                    <div class="input-help">
+                                        Atmospheric humidity
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="input-with-unit">
+
+                                <input
+                                    type="number"
+                                    name="humidity"
+                                    class="custom-input"
+                                    placeholder="Enter humidity"
+                                    min="0"
+                                    max="100"
+                                    step="any"
+                                    required
+                                >
+
+                                <span class="input-unit">
+                                    %
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PH
+                    ================================================== -->
+
+                    <div class="col-lg-6">
+
+                        <div class="input-card">
+
+                            <div class="input-header">
+
+                                <div class="input-icon">
+                                    ⚗️
+                                </div>
+
+                                <div>
+
+                                    <div class="input-label">
+                                        Soil pH
+                                    </div>
+
+                                    <div class="input-help">
+                                        Soil acidity / alkalinity
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="input-with-unit">
+
+                                <input
+                                    type="number"
+                                    name="ph"
+                                    class="custom-input"
+                                    placeholder="Enter pH value"
+                                    min="0"
+                                    max="14"
+                                    step="0.1"
+                                    required
+                                >
+
+                                <span class="input-unit">
+                                    pH
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         RAINFALL
+                    ================================================== -->
+
+                    <div class="col-12">
+
+                        <div class="input-card">
+
+                            <div class="input-header">
+
+                                <div class="input-icon">
+                                    🌧️
+                                </div>
+
+                                <div>
+
+                                    <div class="input-label">
+                                        Rainfall
+                                    </div>
+
+                                    <div class="input-help">
+                                        Expected rainfall level
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="input-with-unit">
+
+                                <input
+                                    type="number"
+                                    name="rainfall"
+                                    class="custom-input"
+                                    placeholder="Enter rainfall value"
+                                    min="0"
+                                    step="any"
+                                    required
+                                >
+
+                                <span class="input-unit">
+                                    mm
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     INFORMATION TAGS
+                ================================================== -->
+
+                <div class="info-tags">
+
+                    <div class="info-tag">
+                        🌱 Soil Analysis
+                    </div>
+
+                    <div class="info-tag">
+                        🌦️ Climate Data
+                    </div>
+
+                    <div class="info-tag">
+                        🤖 Machine Learning
+                    </div>
+
+                    <div class="info-tag">
+                        📊 Smart Prediction
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     BUTTON
+                ================================================== -->
+
+                <button
+                    type="submit"
+                    class="predict-button"
+                >
+
+                    🚀
+                    Predict Best Crop
+
+                </button>
+
+
+            </form>
+
+
+            <!-- =================================================
+                 BOTTOM INFO
+            ================================================== -->
+
+            <div class="bottom-info">
+
+                <div class="bottom-item">
+                    <span></span>
+                    AI Powered
+                </div>
+
+                <div class="bottom-item">
+                    <span></span>
+                    Soil Analysis
+                </div>
+
+                <div class="bottom-item">
+                    <span></span>
+                    Climate Based
+                </div>
+
+                <div class="bottom-item">
+                    <span></span>
+                    Smart Agriculture
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
+
+        <div class="footer">
+
+            🌱 Agri Nexa
+            &nbsp;•&nbsp;
+            Smart Agricultural Production Optimization Engine
+
+        </div>
+
+
+    </main>
+
+
+    <!-- Bootstrap JS -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+    <!-- Your JavaScript -->
+
+    <script
+        src="{{ url_for('static', filename='js/script.js') }}">
+    </script>
+
+
 </body>
+
 </html>
